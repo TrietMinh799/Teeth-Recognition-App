@@ -14,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 class Detection:
     def __init__(self):
         #download weights from here:https://github.com/ultralytics/ultralytics and change the path
-        self.model = YOLO(r"object_detection\yolov8n.pt")
+        self.model = YOLO(r"object_detection\Dental_model.pt")
 
     def predict(self, img, classes=[], conf=0.5):
         if classes:
@@ -64,7 +64,6 @@ def apply_detection():
 
         img = Image.open(file_path).convert("RGB")
         img = np.array(img)
-        img = cv2.resize(img, (512, 512))
         img = detection.detect_from_image(img)
         output = Image.fromarray(img)
 
