@@ -32,7 +32,7 @@ class Detection:
                               (int(box.xyxy[0][2]), int(box.xyxy[0][3])), (255, 0, 0), rectangle_thickness)
                 cv2.putText(img, f"{result.names[int(box.cls[0])]}",
                             (int(box.xyxy[0][0]), int(box.xyxy[0][1]) - 10),
-                            20, (255, 0, 0), text_thickness)
+                            cv2.FONT_ITALIC, 20, (255, 0, 0), text_thickness)
         return img, results
 
     def detect_from_image(self, image):
