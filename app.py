@@ -54,7 +54,7 @@ def apply_detection():
         return 'No file part'
 
     file = request.files['image']
-    if file.filename is None or file.filename == '':
+    if file.filename == '':
         return 'No selected file'
 
     if file:
@@ -75,31 +75,7 @@ def apply_detection():
         os.remove(file_path)
         return send_file(buf, mimetype='image/png')
 
-
-@app.route('/video')
-def index_video():
-    return render_template('video.html')
-
-
-def gen_frames():
-    cap = cv2.VideoCapture(0)
-    while cap.isOpened():
-        ret, frame = cap.read()
-        frame = cv2.resize(frame, (512, 512))
-        if frame is None:
-            break
-        frame = detection.detect_from_image(frame)
-
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
+    #http://localhost:8000/video for video source
+    #http://localhost:8000 for image source
