@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file, Response
+from flask import Flask, request, render_template, send_file
 from werkzeug.utils import secure_filename
 import io
 from ultralytics import YOLO
@@ -22,17 +22,17 @@ class Detection:
         else:
             results = self.model.predict(img, conf=conf)
 
-        return results
-
-    def predict_and_detect(self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=1):
+        return results 
+    def predict_and_detect(self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=3):
         results = self.predict(img, classes, conf=conf)
         for result in results:
             for box in result.boxes:
-                cv2.rectangle(img, (int(box.xyxy[0][0]), int(box.xyxy[0][1])),
-                              (int(box.xyxy[0][2]), int(box.xyxy[0][3])), (255, 0, 0), rectangle_thickness)
-                cv2.putText(img, f"{result.names[int(box.cls[0])]}",
-                            (int(box.xyxy[0][0]), int(box.xyxy[0][1]) - 10),
-                            cv2.FONT_ITALIC, 20, (255, 0, 0), text_thickness)
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                conf = box.conf[0]
+                cls = int(box.cls[0])
+                label = f"{self.model.names[cls]} {conf:.2f}"
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), rectangle_thickness)
+                cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), text_thickness)
         return img, results
 
     def detect_from_image(self, image):
