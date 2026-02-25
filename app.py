@@ -76,5 +76,3 @@ def apply_detection():
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
-    #http://localhost:8000/video for video source
-    #http://localhost:8000 for image source
