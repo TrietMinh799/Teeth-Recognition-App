@@ -13,7 +13,6 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 
 class Detection:
     def __init__(self):
-        #download weights from here:https://github.com/ultralytics/ultralytics and change the path
         self.model = YOLO(r"object_detection\Dental_model.pt")
 
     def predict(self, img, classes=[], conf=0.5):
@@ -35,8 +34,8 @@ class Detection:
                 cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), text_thickness)
         return img, results
 
-    def detect_from_image(self, image):
-        result_img, _ = self.predict_and_detect(image, classes=[], conf=0.5)
+    def detect_from_image(self, image, confidence):
+        result_img, _ = self.predict_and_detect(image, classes=[], conf=confidence)
         return result_img
 
 
@@ -62,9 +61,10 @@ def apply_detection():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
+        confidence = request.form.get('confidence', default=0.5, type=float)
         img = Image.open(file_path).convert("RGB")
         img = np.array(img)
-        img = detection.detect_from_image(img)
+        img = detection.detect_from_image(img, confidence)
         output = Image.fromarray(img)
 
         buf = io.BytesIO()
