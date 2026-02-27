@@ -91,3 +91,5 @@ a#download-link {
 a#download-link:hover {
     background: #357ABD;
 }
+
+#map { height: 180px; }

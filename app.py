@@ -1,15 +1,22 @@
-from flask import Flask, request, render_template, send_file
-from werkzeug.utils import secure_filename
 import io
-from ultralytics import YOLO
-import numpy as np
-from PIL import Image
-import cv2
 import os
+import uuid
+
+import jsonpickle
+import cv2
+import numpy as np
+from flask import Flask, flash, jsonify, render_template, request, send_file, url_for, send_from_directory
+from PIL import Image
+from ultralytics import YOLO
+from werkzeug.utils import redirect, secure_filename
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/'
+app.config["UPLOAD_FOLDER"] = "uploads/"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class Detection:
     def __init__(self):
@@ -21,8 +28,11 @@ class Detection:
         else:
             results = self.model.predict(img, conf=conf)
 
-        return results 
-    def predict_and_detect(self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=3):
+        return results
+
+    def predict_and_detect(
+        self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=3
+    ):
         results = self.predict(img, classes, conf=conf)
         for result in results:
             for box in result.boxes:
@@ -31,48 +41,71 @@ class Detection:
                 cls = int(box.cls[0])
                 label = f"{self.model.names[cls]} {conf:.2f}"
                 cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), rectangle_thickness)
-                cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), text_thickness)
-        return img, results
+                cv2.putText(
+                    img,
+                    label,
+                    (x1, y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    2,
+                    (0, 255, 0),
+                    text_thickness,
+                )
+        return img, results[0]
 
     def detect_from_image(self, image, confidence):
-        result_img, _ = self.predict_and_detect(image, classes=[], conf=confidence)
-        return result_img
+        result_img, result = self.predict_and_detect(image, classes=[], conf=confidence)
+        return result_img, result
 
 
 detection = Detection()
 
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 
-@app.route('/object-detection/', methods=['POST'])
+@app.route("/object-detection/", methods=["POST"])
 def apply_detection():
-    if 'image' not in request.files:
-        return 'No file part'
+    if "image" not in request.files:
+        flash("No file part")
+        return redirect(request.url)
 
-    file = request.files['image']
-    if file.filename == '':
-        return 'No selected file'
+    file = request.files["image"]
+    if file.filename == None or file.filename == "":
+        flash("No file part")
+        return redirect(request.url)
 
-    if file:
+    if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
 
-        confidence = request.form.get('confidence', default=0.5, type=float)
+        confidence = request.form.get("confidence", default=0.5, type=float)
         img = Image.open(file_path).convert("RGB")
         img = np.array(img)
-        img = detection.detect_from_image(img, confidence)
+        img, result = detection.detect_from_image(img, confidence)
         output = Image.fromarray(img)
 
-        buf = io.BytesIO()
-        output.save(buf, format="PNG")
-        buf.seek(0)
+        processed_name = f"processed_{uuid.uuid4().hex}.png"
+        processed_path = os.path.join(app.config["UPLOAD_FOLDER"], processed_name)
+        output.save(processed_path)
 
         os.remove(file_path)
-        return send_file(buf, mimetype='image/png')
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8000)
+        image_url = url_for("uploaded_file", filename=processed_name, _external=True)
+        return jsonify({"image_url": image_url, "classes": result.boxes.cls.tolist()})
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/data.json')
+def data():
+    with open('data.json') as f:
+        data = jsonpickle.decode(f.read())
+    return jsonify(data)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
+

@@ -1,50 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Object Detection Application</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.min.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>Upload an Image to Apply Object Detection</h1>
         <form id="upload-form" action="/object-detection/" method="post" enctype="multipart/form-data">
             <label for="image">Select Image:</label>
             <input type="number" id="confidence" name="confidence" value="0.5" min="0" max="1" step="0.1" />
-            <input type="file" id="image" name="image" accept="image/*" required><br><br>
-            <input type="submit" value="Upload and Apply Detection">
+            <input type="file" id="image" name="image" accept="image/*" required /><br /><br />
+            <input type="submit" value="Upload and Apply Detection" />
         </form>
-        <br>
+        <br />
         <h2>Output Image:</h2>
-        <img id="output-image" src="">
-        <br>
+        <img id="output-image" src="" />
+        <br />
         <a id="download-link" href="" download="output.png">Download Image</a>
+        <br />
+        <div id="output-condition">
+            You have following condition:
+            <ul></ul>
+        </div>
+        <button onclick="requestlocation()" type="button">Do you want to find the nearest clinic</button>
     </div>
-
+    <div style="width:800px;height:600px;" id="map"></div>
     <script>
-        document.getElementById('upload-form').onsubmit = async function(event) {
+        function requestlocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var lat = position.coords.latitude;
+                    var lon = position.coords.longitude;
+                    alert("Your location: Latitude: " + lat + ", Longitude: " + lon);
+                }, function (error) {
+                    alert("Error occurred. Error code: " + error.code);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        document.getElementById("upload-form").onsubmit = async function (
+            event,
+        ) {
             event.preventDefault();
 
             const formData = new FormData(event.target);
-            const response = await fetch('/object-detection/', {
-                method: 'POST',
-                body: formData
+            const list = await fetch('./data.json')
+            const classes = await list.json()
+            const response = await fetch("/object-detection/", {
+                method: "POST",
+                body: formData,
             });
 
             if (response.ok) {
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
+                const data = await response.json();
+                const imageUrl = data.image_url;
 
-                const outputImage = document.getElementById('output-image');
-                outputImage.src = url;
+                const outputImage = document.getElementById("output-image");
+                outputImage.src = imageUrl;
 
-                const downloadLink = document.getElementById('download-link');
-                downloadLink.href = url;
+                const downloadLink = document.getElementById("download-link");
+                downloadLink.href = imageUrl;
+
+                const outputCondition = document.getElementById("output-condition");
+                const ul = outputCondition.querySelector("ul");
+                ul.innerHTML = "";
+                data.classes.forEach(cls => {
+                    const li = document.createElement("li");
+                    li.textContent = classes[cls];
+                    ul.appendChild(li);
+                });
             } else {
-                console.error('Failed to process image');
+                console.error("Failed to process image");
             }
         };
     </script>
 </body>
+
 </html>
