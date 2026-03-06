@@ -3,5 +3,6 @@ Include/
 Lib/
 Scripts/
 share/
+uploads/*.png
 
 pyvenv.cfg
