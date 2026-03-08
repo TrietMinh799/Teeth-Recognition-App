@@ -1,26 +1,35 @@
-import io
 import os
 import uuid
 
-import jsonpickle
 import cv2
+import jsonpickle
 import numpy as np
-from flask import Flask, flash, jsonify, render_template, request, send_file, url_for, send_from_directory
+from flask import (
+    Flask,
+    flash,
+    jsonify,
+    render_template,
+    request,
+    send_file,
+    send_from_directory,
+    url_for,
+)
 from PIL import Image
 from ultralytics import YOLO
 from werkzeug.utils import redirect, secure_filename
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads/"
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
+
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 class Detection:
     def __init__(self):
-        self.model = YOLO(r"object_detection\Dental_model.pt")
+        self.model = YOLO(r"models\Dental_model.pt")
 
     def predict(self, img, classes=[], conf=0.5):
         if classes:
@@ -96,16 +105,17 @@ def apply_detection():
         return jsonify({"image_url": image_url, "classes": result.boxes.cls.tolist()})
 
 
-@app.route('/uploads/<filename>')
+@app.route("/uploads/<filename>")
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
-@app.route('/data.json')
+
+@app.route("/data.json")
 def data():
-    with open('data.json') as f:
+    with open("data.json") as f:
         data = jsonpickle.decode(f.read())
     return jsonify(data)
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
-
