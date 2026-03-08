@@ -10,7 +10,6 @@ from flask import (
     jsonify,
     render_template,
     request,
-    send_file,
     send_from_directory,
     url_for,
 )
@@ -23,15 +22,31 @@ app.config["UPLOAD_FOLDER"] = "uploads/"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
+# Load model
 class Detection:
+    """
+    Handles object detection using a pre-trained YOLO model.
+    """
+
     def __init__(self):
+        """
+        Initializes the Detection class by loading the YOLO model.
+        The model is loaded from 'models/Dental_model.pt'.
+        """
         self.model = YOLO(r"models\Dental_model.pt")
 
     def predict(self, img, classes=[], conf=0.5):
+        """
+        Performs object detection on the provided image.
+
+        Args:
+            img: The input image (numpy array or path).
+            classes (list): List of class IDs to filter detections. If empty, all classes are detected.
+            conf (float): Confidence threshold for detections (default 0.5).
+
+        Returns:
+            list: A list of result objects from the YOLO model.
+        """
         if classes:
             results = self.model.predict(img, classes=classes, conf=conf)
         else:
@@ -42,6 +57,19 @@ class Detection:
     def predict_and_detect(
         self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=3
     ):
+        """
+        Performs detection and draws bounding boxes/labels on the image.
+
+        Args:
+            img: The input image.
+            classes (list): Classes to detect.
+            conf (float): Confidence threshold.
+            rectangle_thickness (int): Thickness of the bounding box lines.
+            text_thickness (int): Thickness of the label text.
+
+        Returns:
+            tuple: (annotated_image, first_result_object)
+        """
         results = self.predict(img, classes, conf=conf)
         for result in results:
             for box in result.boxes:
@@ -62,11 +90,26 @@ class Detection:
         return img, results[0]
 
     def detect_from_image(self, image, confidence):
+        """
+        Convenience wrapper for detecting objects in an image with a specific confidence.
+
+        Args:
+            image: Input image.
+            confidence (float): Confidence threshold.
+
+        Returns:
+            tuple: (annotated_image, result_object)
+        """
         result_img, result = self.predict_and_detect(image, classes=[], conf=confidence)
         return result_img, result
 
 
 detection = Detection()
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route("/")
 def index():
@@ -80,7 +123,7 @@ def apply_detection():
         return redirect(request.url)
 
     file = request.files["image"]
-    if file.filename == None or file.filename == "":
+    if file.filename is None or file.filename == "":
         flash("No file part")
         return redirect(request.url)
 
