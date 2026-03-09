@@ -1,0 +1,479 @@
+document.getElementById("upload-form").onsubmit = async function (event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const list = await fetch("./data.json");
+  const classes = await list.json();
+  const response = await fetch("/object-detection/", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    document.getElementById("output-image").src = data.image_url;
+    document.getElementById("download-link").href = data.image_url;
+
+    const ul = document.querySelector("#output-condition ul");
+    ul.innerHTML = "";
+    data.classes.forEach((cls) => {
+      const li = document.createElement("li");
+      li.textContent = classes[cls];
+      ul.appendChild(li);
+    });
+  } else {
+    console.error("Failed to process image");
+  }
+};
+
+let mapInitialized = false;
+
+function toggleMap() {
+  const section = document.getElementById("map-section");
+  const btn = document.getElementById("toggleMapBtn");
+  const isOpen = section.classList.toggle("visible");
+  btn.textContent = isOpen ? "Close the map" : "Open the map";
+  if (isOpen && !mapInitialized) {
+    initMap();
+    mapInitialized = true;
+  }
+}
+
+let map,
+  userMarker,
+  userCoords = null,
+  searchMarkers = [],
+  activePopup = null;
+
+function initMap() {
+  map = new maplibregl.Map({
+    container: "map",
+    style: "https://tiles.openfreemap.org/styles/liberty",
+    center: [0, 20],
+    zoom: 2,
+  });
+  map.addControl(new maplibregl.NavigationControl(), "bottom-right");
+  map.on("click", () => {
+    if (activePopup) {
+      activePopup.remove();
+      activePopup = null;
+    }
+  });
+}
+
+function togglePanel() {
+  const panel = document.getElementById("map-panel");
+  const btn = document.getElementById("panelToggleBtn");
+  const hidden = panel.classList.toggle("panel-hidden");
+  btn.style.display = hidden ? "flex" : "none";
+}
+
+// ── Status helper ────────────────────────────────────────────────────────
+function setStatus(msg, type = "") {
+  const el = document.getElementById("map-status");
+  const text = document.getElementById("statusText");
+  const dot = el.querySelector(".sdot");
+  el.className = type;
+  text.textContent = msg;
+  dot.className = "sdot" + (type === "loading" ? " pulse" : "");
+}
+
+let locationWatcher = null;
+let bestAccuracy = Infinity;
+let reverseGeocodeTimer = null;
+
+function locateUser() {
+  if (!navigator.geolocation) {
+    setStatus("Geolocation not supported.", "error");
+    return;
+  }
+
+  if (locationWatcher !== null) {
+    navigator.geolocation.clearWatch(locationWatcher);
+    locationWatcher = null;
+  }
+
+  bestAccuracy = Infinity;
+  setStatus("Acquiring GPS signal…", "loading");
+  document.getElementById("locateBtn").textContent = "◎ Locating…";
+  document.getElementById("coordsBadge").classList.add("visible");
+  document.getElementById("locationName").textContent = "Waiting for GPS…";
+  document.getElementById("locationAddr").textContent = "";
+
+  // Give up and use best result after 15 s
+  const giveUpTimer = setTimeout(() => {
+    if (locationWatcher !== null) {
+      navigator.geolocation.clearWatch(locationWatcher);
+      locationWatcher = null;
+    }
+    document.getElementById("locateBtn").textContent = "◎ Locate Me";
+  }, 15000);
+
+  locationWatcher = navigator.geolocation.watchPosition(
+    (pos) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+
+      // Always update the live display
+      document.getElementById("latVal").textContent = lat.toFixed(6);
+      document.getElementById("lngVal").textContent = lng.toFixed(6);
+      setStatus(`Accuracy: ±${Math.round(accuracy)} m — refining…`, "loading");
+
+      // Only move marker/circle if this is a better reading
+      if (accuracy >= bestAccuracy) return;
+      bestAccuracy = accuracy;
+      userCoords = { lat, lng };
+
+      // Update marker position
+      if (userMarker) userMarker.remove();
+      const el = document.createElement("div");
+      el.innerHTML = `<div class="user-dot-outer"><div class="user-dot-inner"></div></div>`;
+      userMarker = new maplibregl.Marker({
+        element: el,
+        anchor: "center",
+      })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+      // Update accuracy circle
+      const circleData = circleGeoJSON(lng, lat, accuracy);
+      const doCircle = () => {
+        if (map.getSource("acc")) {
+          map.getSource("acc").setData(circleData);
+          return;
+        }
+        map.addSource("acc", {
+          type: "geojson",
+          data: circleData,
+        });
+        map.addLayer({
+          id: "acc-fill",
+          type: "fill",
+          source: "acc",
+          paint: {
+            "fill-color": "#4A90E2",
+            "fill-opacity": 0.1,
+          },
+        });
+        map.addLayer({
+          id: "acc-line",
+          type: "line",
+          source: "acc",
+          paint: {
+            "line-color": "#4A90E2",
+            "line-width": 1.5,
+            "line-opacity": 0.5,
+          },
+        });
+      };
+      map.isStyleLoaded() ? doCircle() : map.once("load", doCircle);
+
+      map.flyTo({
+        center: [lng, lat],
+        zoom: 17,
+        speed: 1.6,
+        curve: 1.4,
+      });
+
+      // Debounce reverse geocode — only call after reading stabilises for 1.5 s
+      clearTimeout(reverseGeocodeTimer);
+      reverseGeocodeTimer = setTimeout(
+        () => reverseGeocode(lat, lng, accuracy),
+        1500,
+      );
+
+      // Good enough — stop watching (≤ 50 m is excellent on mobile)
+      if (accuracy <= 50) {
+        clearTimeout(giveUpTimer);
+        navigator.geolocation.clearWatch(locationWatcher);
+        locationWatcher = null;
+        setStatus(`Location locked ±${Math.round(accuracy)} m`, "ok");
+        document.getElementById("locateBtn").textContent = "◎ Locate Me";
+      }
+    },
+    (err) => {
+      clearTimeout(giveUpTimer);
+      const msgs = {
+        1: "Permission denied.",
+        2: "Position unavailable.",
+        3: "Timed out.",
+      };
+      setStatus(msgs[err.code] || "Location error.", "error");
+      document.getElementById("locateBtn").textContent = "◎ Locate Me";
+      document.getElementById("locationName").textContent = "Failed to locate";
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+  );
+}
+
+async function reverseGeocode(lat, lng, accuracy) {
+  document.getElementById("locationName").textContent = "Getting address…";
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`,
+      { headers: { "Accept-Language": "en" } },
+    );
+    const data = await res.json();
+    const addr = data.address || {};
+
+    const name =
+      addr.amenity ||
+      addr.building ||
+      addr.shop ||
+      addr.office ||
+      addr.road ||
+      addr.neighbourhood ||
+      addr.suburb ||
+      addr.village ||
+      addr.town ||
+      addr.city ||
+      "Your location";
+
+    const street = [addr.house_number, addr.road].filter(Boolean).join(" ");
+    const area = [
+      addr.quarter || addr.neighbourhood || addr.suburb,
+      addr.city_district || addr.district,
+      addr.city || addr.town || addr.village,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    const addrStr = [street, area].filter(Boolean).join(", ");
+
+    // Update panel card
+    document.getElementById("locationName").textContent = name;
+    document.getElementById("locationAddr").textContent = addrStr;
+
+    // Popup on marker
+    if (activePopup) activePopup.remove();
+    activePopup = new maplibregl.Popup({
+      offset: [0, -14],
+      closeButton: true,
+      maxWidth: "250px",
+    })
+      .setLngLat([lng, lat])
+      .setHTML(
+        `
+            <div style="font-size:13px;font-weight:700;color:#4A90E2;margin-bottom:4px">📍 You are here</div>
+            <div style="font-size:12px;font-weight:600;color:#333;margin-bottom:3px">${name}</div>
+            ${addrStr ? `<div style="font-size:11px;color:#555;margin-bottom:4px;line-height:1.4">${addrStr}</div>` : ""}
+            <div style="font-size:10px;color:#999">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+            <div style="font-size:10px;color:#4A90E2;margin-top:2px">±${Math.round(accuracy)} m accuracy</div>
+          `,
+      )
+      .addTo(map);
+
+    setStatus(`Location locked ±${Math.round(accuracy)} m`, "ok");
+  } catch {
+    document.getElementById("locationName").textContent = "Your location";
+    document.getElementById("locationAddr").textContent =
+      `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  }
+}
+
+function circleGeoJSON(cx, cy, r, n = 64) {
+  const coords = [];
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * 2 * Math.PI;
+    coords.push([
+      cx + (r / (111320 * Math.cos((cy * Math.PI) / 180))) * Math.sin(a),
+      cy + (r / 111320) * Math.cos(a),
+    ]);
+  }
+  return {
+    type: "Feature",
+    geometry: { type: "Polygon", coordinates: [coords] },
+  };
+}
+
+// ── Distance helpers ─────────────────────────────────────────────────────
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371000,
+    dLat = ((lat2 - lat1) * Math.PI) / 180,
+    dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+const fmtDist = (m) =>
+  m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(1)} km`;
+
+// ── Text search: Photon → Nominatim fallback ─────────────────────────────
+async function searchPlaces() {
+  const query = document.getElementById("searchInput").value.trim();
+  if (!query) {
+    setStatus("Enter a search term.", "error");
+    return;
+  }
+  setStatus("Searching…", "loading");
+  clearSearchMarkers();
+
+  const results = (await photonSearch(query)) || (await nominatimSearch(query));
+  if (!results || !results.length) {
+    setStatus("No results found.", "error");
+    return;
+  }
+
+  setStatus(
+    `${results.length} result${results.length > 1 ? "s" : ""} found`,
+    "ok",
+  );
+  renderResults(results);
+  fitAndPlot(results);
+}
+
+async function photonSearch(query) {
+  try {
+    let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=10&lang=en`;
+    if (userCoords) url += `&lat=${userCoords.lat}&lon=${userCoords.lng}`;
+    const data = await (await fetch(url)).json();
+    if (!data.features?.length) return null;
+    return data.features.map((f) => {
+      const p = f.properties,
+        [lon, lat] = f.geometry.coordinates;
+      const name = p.name || p.street || p.city || query;
+      const sub = [p.street, p.city, p.state, p.country]
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(", ");
+      const dist = userCoords
+        ? haversine(userCoords.lat, userCoords.lng, lat, lon)
+        : null;
+      return {
+        name,
+        sub,
+        lat,
+        lon,
+        dist,
+        badge: p.osm_value || "",
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function nominatimSearch(query) {
+  try {
+    let extra = "";
+    if (userCoords) {
+      const { lat, lng } = userCoords,
+        d = 2;
+      extra = `&viewbox=${lng - d},${lat - d},${lng + d},${lat + d}&bounded=0`;
+    }
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=10&addressdetails=1${extra}`;
+    const data = await (
+      await fetch(url, {
+        headers: { "Accept-Language": "en" },
+      })
+    ).json();
+    if (!data.length) return null;
+    return data.map((p) => {
+      const lat = +p.lat,
+        lon = +p.lon;
+      return {
+        name: p.name || p.display_name.split(",")[0],
+        sub: p.display_name.split(",").slice(1, 4).join(", ").trim(),
+        lat,
+        lon,
+        dist: userCoords
+          ? haversine(userCoords.lat, userCoords.lng, lat, lon)
+          : null,
+        badge: p.type || "",
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+// ── Render results ───────────────────────────────────────────────────────
+function renderResults(data) {
+  const el = document.getElementById("map-results");
+  el.innerHTML = "";
+  data.forEach((place, i) => {
+    const div = document.createElement("div");
+    div.className = "result-item";
+    div.innerHTML = `
+          <div class="result-name">${place.name}</div>
+          ${place.sub ? `<div class="result-sub">${place.sub}</div>` : ""}
+          ${place.dist != null ? `<div class="result-dist">◈ ${fmtDist(place.dist)}</div>` : ""}`;
+    div.onclick = () => {
+      map.flyTo({
+        center: [place.lon, place.lat],
+        zoom: 17,
+        speed: 1.4,
+      });
+      openPopup(i, place);
+    };
+    el.appendChild(div);
+  });
+}
+
+function fitAndPlot(data) {
+  plotMarkers(data);
+  if (data.length === 1) {
+    map.flyTo({
+      center: [data[0].lon, data[0].lat],
+      zoom: 16,
+      speed: 1.3,
+    });
+  } else {
+    const lngs = data.map((d) => d.lon),
+      lats = data.map((d) => d.lat);
+    map.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: 70, maxZoom: 16 },
+    );
+  }
+}
+
+function plotMarkers(data) {
+  data.forEach((place, i) => {
+    const el = document.createElement("div");
+    el.style.cssText = `width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+          background:#e8c97a;border:2px solid #0d0f14;cursor:pointer;
+          box-shadow:0 2px 8px rgba(232,201,122,0.4);transition:transform .15s;`;
+    el.onmouseenter = () => (el.style.transform = "rotate(-45deg) scale(1.2)");
+    el.onmouseleave = () => (el.style.transform = "rotate(-45deg) scale(1)");
+    const marker = new maplibregl.Marker({
+      element: el,
+      anchor: "bottom-left",
+    })
+      .setLngLat([place.lon, place.lat])
+      .addTo(map);
+    el.onclick = () => openPopup(i, place);
+    searchMarkers.push(marker);
+  });
+}
+
+function openPopup(index, place) {
+  if (activePopup) activePopup.remove();
+  activePopup = new maplibregl.Popup({
+    offset: [0, -6],
+    closeButton: true,
+    maxWidth: "220px",
+  })
+    .setLngLat([place.lon, place.lat])
+    .setHTML(
+      `
+          <div style="font-size:12px;font-weight:700;color:#4A90E2;margin-bottom:3px">${place.name}</div>
+          ${place.sub ? `<div style="font-size:10px;color:#888">${place.sub}</div>` : ""}
+          ${place.dist != null ? `<div style="font-size:10px;color:#4A90E2;margin-top:3px">◈ ${fmtDist(place.dist)} away</div>` : ""}
+        `,
+    )
+    .addTo(map);
+}
+
+function clearSearchMarkers() {
+  searchMarkers.forEach((m) => m.remove());
+  searchMarkers = [];
+  if (activePopup) {
+    activePopup.remove();
+    activePopup = null;
+  }
+  document.getElementById("map-results").innerHTML = "";
+}
