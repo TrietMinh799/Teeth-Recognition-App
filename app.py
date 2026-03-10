@@ -19,8 +19,7 @@ from werkzeug.utils import redirect, secure_filename
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads/"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
-
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg","webp",}
 
 # Load model
 class Detection:
@@ -34,6 +33,7 @@ class Detection:
         The model is loaded from 'models/Dental_model.pt'.
         """
         self.model = YOLO(r"models\Dental_model.pt")
+        print(self.model.names)
 
     def predict(self, img, classes=[], conf=0.5):
         """
@@ -55,7 +55,7 @@ class Detection:
         return results
 
     def predict_and_detect(
-        self, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=3
+        self, img, classes=[], conf=0.5, rectangle_thickness=1, text_thickness=1
     ):
         """
         Performs detection and draws bounding boxes/labels on the image.
@@ -77,14 +77,17 @@ class Detection:
                 conf = box.conf[0]
                 cls = int(box.cls[0])
                 label = f"{self.model.names[cls]} {conf:.2f}"
-                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), rectangle_thickness)
+                colour_codes = { 0: (0, 255, 0) , 1: (255, 0, 0) , 2 : (0, 0, 255), }
+                cv2.rectangle(img, (x1, y1), (x2, y2), colour_codes[cls % 3], rectangle_thickness)
+                # text_size, _ =cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_thickness)
+                # text_w, text_h= text_size
                 cv2.putText(
                     img,
                     label,
-                    (x1, y1 - 10),
+                    ((x1 - len(label)//2 * 4), y1 + 30),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    2,
-                    (0, 255, 0),
+                    0.43,
+                    colour_codes[cls % 3],   
                     text_thickness,
                 )
         return img, results[0]
