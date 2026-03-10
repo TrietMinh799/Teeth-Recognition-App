@@ -123,7 +123,7 @@ def apply_detection():
         return redirect(request.url)
 
     file = request.files["image"]
-    if file.filename is None or file.filename == "":
+    if file.filename == "" or file.filename == "":
         flash("No file part")
         return redirect(request.url)
 

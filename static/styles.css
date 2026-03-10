@@ -1,6 +1,5 @@
-/* ── Base ─────────────────────────────────────────────────────────────────── */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: "Arial", sans-serif;
     background: linear-gradient(to right, #ece9e6, #ffffff);
     margin: 0;
     padding: 0;
@@ -27,7 +26,7 @@ body {
 h1 {
     font-size: 2em;
     margin-bottom: 20px;
-    color: #4A90E2;
+    color: #4a90e2;
 }
 
 form {
@@ -50,7 +49,7 @@ input[type="file"] {
 }
 
 input[type="submit"] {
-    background: #4A90E2;
+    background: #4a90e2;
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -61,7 +60,7 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background: #357ABD;
+    background: #357abd;
 }
 
 h2 {
@@ -83,7 +82,7 @@ a#download-link {
     display: inline-block;
     margin-top: 20px;
     padding: 10px 20px;
-    background: #4A90E2;
+    background: #4a90e2;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
@@ -91,7 +90,7 @@ a#download-link {
 }
 
 a#download-link:hover {
-    background: #357ABD;
+    background: #357abd;
 }
 
 /* ── Panel toggle button ─────────────────────────────────────────────────── */
@@ -112,13 +111,15 @@ a#download-link:hover {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.15);
-    transition: background 0.2s, border-color 0.2s;
-    color: #4A90E2;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
+    color: #4a90e2;
 }
 
 #panelToggleBtn:hover {
     background: #eaf2ff;
-    border-color: #4A90E2;
+    border-color: #4a90e2;
 }
 
 #map-panel .panel-header {
@@ -139,7 +140,7 @@ a#download-link:hover {
 }
 
 #map-panel .panel-close-btn:hover {
-    color: #4A90E2;
+    color: #4a90e2;
 }
 
 #map-panel.panel-hidden {
@@ -149,7 +150,7 @@ a#download-link:hover {
 /* ── Toggle map button ───────────────────────────────────────────────────── */
 #toggleMapBtn {
     margin-top: 20px;
-    background: #4A90E2;
+    background: #4a90e2;
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -160,7 +161,7 @@ a#download-link:hover {
 }
 
 #toggleMapBtn:hover {
-    background: #357ABD;
+    background: #357abd;
 }
 
 /* ── Map section ─────────────────────────────────────────────────────────── */
@@ -205,7 +206,7 @@ a#download-link:hover {
     gap: 10px;
     z-index: 10;
     box-shadow: 0 4px 20px rgba(74, 144, 226, 0.15);
-    font-family: 'Arial', sans-serif;
+    font-family: "Arial", sans-serif;
     color: #333;
     max-height: 530px;
 }
@@ -213,7 +214,7 @@ a#download-link:hover {
 #map-panel .panel-title {
     font-size: 14px;
     font-weight: 700;
-    color: #4A90E2;
+    color: #4a90e2;
     letter-spacing: 0.3px;
 }
 
@@ -229,7 +230,7 @@ a#download-link:hover {
     justify-content: center;
     gap: 6px;
     background: #f0f6ff;
-    color: #4A90E2;
+    color: #4a90e2;
     border: 1px solid #d0dff5;
     border-radius: 8px;
     padding: 8px 12px;
@@ -237,12 +238,14 @@ a#download-link:hover {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
 }
 
 #locateBtn:hover {
     background: #dceeff;
-    border-color: #4A90E2;
+    border-color: #4a90e2;
 }
 
 /* ── Coordinates badge ───────────────────────────────────────────────────── */
@@ -263,7 +266,7 @@ a#download-link:hover {
 }
 
 #coordsBadge span {
-    color: #4A90E2;
+    color: #4a90e2;
     font-weight: 600;
 }
 
@@ -283,7 +286,9 @@ a#download-link:hover {
     font-family: inherit;
     font-size: 12px;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 
 #searchInput::placeholder {
@@ -291,12 +296,12 @@ a#download-link:hover {
 }
 
 #searchInput:focus {
-    border-color: #4A90E2;
+    border-color: #4a90e2;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.12);
 }
 
 #searchBtn {
-    background: #4A90E2;
+    background: #4a90e2;
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -309,7 +314,7 @@ a#download-link:hover {
 }
 
 #searchBtn:hover {
-    background: #357ABD;
+    background: #357abd;
 }
 
 /* ── Status indicator ────────────────────────────────────────────────────── */
@@ -322,9 +327,15 @@ a#download-link:hover {
     min-height: 14px;
 }
 
-#map-status.ok      { color: #4caf82; }
-#map-status.error   { color: #e05656; }
-#map-status.loading { color: #4A90E2; }
+#map-status.ok {
+    color: #4caf82;
+}
+#map-status.error {
+    color: #e05656;
+}
+#map-status.loading {
+    color: #4a90e2;
+}
 
 .sdot {
     width: 6px;
@@ -339,8 +350,15 @@ a#download-link:hover {
 }
 
 @keyframes sdotpulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.35; transform: scale(1.5); }
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.35;
+        transform: scale(1.5);
+    }
 }
 
 /* ── Results list ────────────────────────────────────────────────────────── */
@@ -352,9 +370,16 @@ a#download-link:hover {
     max-height: 240px;
 }
 
-#map-results::-webkit-scrollbar { width: 4px; }
-#map-results::-webkit-scrollbar-track { background: transparent; }
-#map-results::-webkit-scrollbar-thumb { background: #d0dff5; border-radius: 4px; }
+#map-results::-webkit-scrollbar {
+    width: 4px;
+}
+#map-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+#map-results::-webkit-scrollbar-thumb {
+    background: #d0dff5;
+    border-radius: 4px;
+}
 
 .result-item {
     background: #f7f9fc;
@@ -362,12 +387,14 @@ a#download-link:hover {
     border-radius: 8px;
     padding: 8px 11px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition:
+        border-color 0.15s,
+        background 0.15s;
     text-align: left;
 }
 
 .result-item:hover {
-    border-color: #4A90E2;
+    border-color: #4a90e2;
     background: #eaf2ff;
 }
 
@@ -391,7 +418,7 @@ a#download-link:hover {
 
 .result-dist {
     font-size: 10px;
-    color: #4A90E2;
+    color: #4a90e2;
     margin-top: 2px;
     font-weight: 600;
 }
@@ -402,7 +429,7 @@ a#download-link:hover {
     height: 20px;
     border-radius: 50%;
     background: rgba(74, 144, 226, 0.15);
-    border: 2px solid #4A90E2;
+    border: 2px solid #4a90e2;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,12 +440,17 @@ a#download-link:hover {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #4A90E2;
+    background: #4a90e2;
 }
 
 @keyframes uRing {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.45); }
-    50%       { box-shadow: 0 0 0 7px rgba(74, 144, 226, 0); }
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.45);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(74, 144, 226, 0);
+    }
 }
 
 /* ── MapLibre popup ──────────────────────────────────────────────────────── */
@@ -426,7 +458,7 @@ a#download-link:hover {
     background: #fff !important;
     border: 1px solid #d0dff5 !important;
     color: #333 !important;
-    font-family: 'Arial', sans-serif !important;
+    font-family: "Arial", sans-serif !important;
     font-size: 12px !important;
     border-radius: 9px !important;
     padding: 10px 13px !important;
@@ -443,7 +475,7 @@ a#download-link:hover {
     border: 1px solid #d0dff5 !important;
     border-radius: 9px !important;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 .maplibregl-ctrl-group button {
@@ -454,7 +486,7 @@ a#download-link:hover {
 
 .maplibregl-ctrl-group button:hover {
     background: #f0f6ff !important;
-    color: #4A90E2 !important;
+    color: #4a90e2 !important;
 }
 
 .maplibregl-ctrl-group button + button {
@@ -468,5 +500,5 @@ a#download-link:hover {
 }
 
 .maplibregl-ctrl-attrib a {
-    color: #4A90E2 !important;
+    color: #4a90e2 !important;
 }

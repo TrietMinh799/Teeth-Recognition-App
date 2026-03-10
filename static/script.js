@@ -44,6 +44,7 @@ let map,
   searchMarkers = [],
   activePopup = null;
 
+// create a base map
 function initMap() {
   map = new maplibregl.Map({
     container: "map",
