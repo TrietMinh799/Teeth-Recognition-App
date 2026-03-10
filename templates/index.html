@@ -1,135 +1,246 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Object Detection Application</title>
-        <link rel="stylesheet" href="/static/styles.css" />
-        <link
-            href="https://unpkg.com/maplibre-gl@4.5.2/dist/maplibre-gl.css"
-            rel="stylesheet"
-        />
-        <script src="https://unpkg.com/maplibre-gl@4.5.2/dist/maplibre-gl.js"></script>
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DentalScan · AI Detection</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://unpkg.com/maplibre-gl@4.5.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@4.5.2/dist/maplibre-gl.js"></script>
+  </head>
+  <body>
 
-    <body>
-        <div class="container">
-            <h1>Upload an Image to Apply Object Detection</h1>
+    <!-- ── Ambient background ── -->
+    <div class="bg-ambient">
+      <div class="ambient-orb orb-1"></div>
+      <div class="ambient-orb orb-2"></div>
+    </div>
 
-            <form
-                id="upload-form"
-                action="/object-detection/"
-                method="post"
-                enctype="multipart/form-data"
-            >
-                <label for="image">Select Image:</label>
-                <input
-                    type="number"
-                    id="confidence"
-                    name="confidence"
-                    value="0.5"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                />
-                <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    accept="image/*"
-                    required
-                /><br /><br />
-                <input type="submit" value="Upload and Apply Detection" />
-            </form>
+    <!-- ── Sidebar nav ── -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-mark">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="11" cy="11" r="10" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7 11 C7 8 9 6.5 11 6.5 C13 6.5 15 8 15 11 C15 14 13.5 15.5 11 15.5 C9.5 15.5 8 14.5 7.5 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="logo-text">DentalScan</span>
+      </div>
 
-            <br />
-            <h2>Output Image:</h2>
-            <img id="output-image" src="" />
-            <br />
-            <a id="download-link" href="" download="output.png"
-                >Download Image</a
-            >
-            <br />
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="scan">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Scan</span>
+        </a>
+        <a href="#" class="nav-item" data-section="results">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Results</span>
+        </a>
+        <a href="#" class="nav-item" id="mapNavBtn" data-section="map">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6C3.5 9.5 8 14.5 8 14.5C8 14.5 12.5 9.5 12.5 6C12.5 3.5 10.5 1.5 8 1.5Z" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="6" r="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Map</span>
+        </a>
+      </nav>
 
-            <div id="output-condition">
-                <br />
-                You have following condition:
-                <ul></ul>
-            </div>
+      <div class="sidebar-footer">
+        <div class="model-badge">
+          <span class="model-dot"></span>
+          <span>YOLO · Active</span>
+        </div>
+      </div>
+    </aside>
 
-            <button id="toggleMapBtn" onclick="toggleMap()" type="button">
-                Open the map
-            </button>
+    <!-- ── Main content ── -->
+    <main class="main">
+
+      <!-- ═══════════════════════════════════════ SCAN SECTION -->
+      <section class="section active" id="section-scan">
+
+        <div class="section-header">
+          <div>
+            <p class="section-eyebrow">AI-Powered Analysis</p>
+            <h1 class="section-title">Dental Object Detection</h1>
+          </div>
+          <div class="header-meta">
+            <span class="meta-tag">Model v2.1</span>
+            <span class="meta-tag">COCO-trained</span>
+          </div>
         </div>
 
-        <div id="map-section">
-            <div id="map-wrapper">
-                <div id="map"></div>
+        <!-- Upload area + confidence -->
+        <div class="upload-card" id="uploadCard">
+          <div class="upload-zone" id="dropZone">
+            <input type="file" id="image" name="image" accept="image/*" required hidden />
+            <div class="upload-idle" id="uploadIdle">
+              <div class="upload-icon-wrap">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                  <path d="M16 4L16 20M16 4L11 9M16 4L21 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 22V25C5 26.1 5.9 27 7 27H25C26.1 27 27 26.1 27 25V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <p class="upload-heading">Drop your X-ray or dental image</p>
+              <p class="upload-sub">PNG, JPG, JPEG · up to 20 MB</p>
+              <button type="button" class="btn-ghost" onclick="document.getElementById('image').click()">Browse files</button>
+            </div>
+            <div class="upload-preview" id="uploadPreview" style="display:none">
+              <img id="previewImg" src="" alt="preview" />
+              <div class="preview-overlay">
+                <button type="button" class="btn-ghost-sm" onclick="clearPreview()">✕ Change</button>
+              </div>
+            </div>
+          </div>
 
-                <button
-                    id="panelToggleBtn"
-                    onclick="togglePanel()"
-                    title="Hide panel"
-                >
-                    ✕
-                </button>
+          <!-- Confidence slider -->
+          <div class="conf-row">
+            <div class="conf-info">
+              <span class="conf-label">Confidence threshold</span>
+              <span class="conf-hint">Higher = fewer but more certain detections</span>
+            </div>
+            <div class="conf-control">
+              <input type="range" id="confidence" name="confidence" value="0.5" min="0" max="1" step="0.05" oninput="updateConf(this.value)" />
+              <span class="conf-value" id="confValue">0.50</span>
+            </div>
+          </div>
 
-                <div id="map-panel">
-                    <div class="panel-header">
-                        <div class="panel-title">🗺 Explorer</div>
-                        <button
-                            class="panel-close-btn"
-                            onclick="togglePanel()"
-                            title="Hide panel"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                    <div class="divider"></div>
+          <!-- Submit -->
+          <button type="button" class="btn-primary" id="submitBtn" onclick="runDetection()">
+            <span id="btnLabel">Run Detection</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
 
-                    <button id="locateBtn" onclick="locateUser()">
-                        ◎ Locate Me
-                    </button>
+      </section>
 
-                    <div id="coordsBadge">
-                        <div class="sdot" style="background: #4a90e2"></div>
-                        <div id="locationInfo">
-                            <div id="locationName" class="location-name">
-                                Locating…
-                            </div>
-                            <div id="locationAddr" class="location-addr"></div>
-                            <div class="location-coords">
-                                Lat <span id="latVal">—</span> &nbsp; Lng
-                                <span id="lngVal">—</span>
-                            </div>
-                        </div>
-                    </div>
+      <!-- ═══════════════════════════════════════ RESULTS SECTION -->
+      <section class="section" id="section-results">
 
-                    <div class="divider"></div>
+        <div class="section-header">
+          <div>
+            <p class="section-eyebrow">Analysis Output</p>
+            <h1 class="section-title">Detection Results</h1>
+          </div>
+          <button class="btn-outline" onclick="switchSection('scan')">← New Scan</button>
+        </div>
 
-                    <div class="search-row">
-                        <input
-                            id="searchInput"
-                            type="text"
-                            placeholder="Search any place…"
-                            onkeydown="
-                                if (event.key === 'Enter') searchPlaces();
-                            "
-                        />
-                        <button id="searchBtn" onclick="searchPlaces()">
-                            Go
-                        </button>
-                    </div>
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyResults">
+          <div class="empty-icon">⬡</div>
+          <p>No scan analysed yet.<br>Upload an image to see results here.</p>
+          <button class="btn-ghost" onclick="switchSection('scan')">Go to Scan</button>
+        </div>
 
-                    <div id="map-status">
-                        <div class="sdot"></div>
-                        <span id="statusText">Ready</span>
-                    </div>
+        <!-- Results layout -->
+        <div class="results-layout" id="resultsLayout" style="display:none">
+          <div class="result-image-panel">
+            <div class="result-image-wrap">
+              <img id="output-image" src="" alt="Detection output" />
+              <div class="image-toolbar">
+                <a id="download-link" href="" download="dental-detection.png" class="toolbar-btn">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M7 9l-3-3M7 9l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  Download
+                </a>
+              </div>
+            </div>
+          </div>
 
-                    <div id="map-results"></div>
+          <div class="result-data-panel">
+            <div class="data-card">
+              <div class="data-card-header">
+                <span class="data-card-title">Detected Conditions</span>
+                <span class="detection-count" id="detectionCount">0</span>
+              </div>
+              <ul class="conditions-list" id="conditionsList"></ul>
+            </div>
+
+            <div class="data-card" id="confCard">
+              <div class="data-card-header">
+                <span class="data-card-title">Scan Parameters</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Confidence</span>
+                <span class="param-val" id="usedConf">—</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Model</span>
+                <span class="param-val">Dental v2.1</span>
+              </div>
+              <div class="param-row">
+                <span class="param-label">Status</span>
+                <span class="param-val" style="color:#4ade80">Complete</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading overlay -->
+        <div class="scan-loading" id="scanLoading" style="display:none">
+          <div class="scan-animation">
+            <div class="scan-bar"></div>
+          </div>
+          <p class="scan-loading-text">Analysing image…</p>
+        </div>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════ MAP SECTION -->
+      <section class="section" id="section-map">
+
+        <div class="section-header">
+          <div>
+            <p class="section-eyebrow">Location Tools</p>
+            <h1 class="section-title">Map Explorer</h1>
+          </div>
+        </div>
+
+        <div class="map-container" id="mapContainer">
+          <div id="map"></div>
+
+          <!-- Map panel -->
+          <div id="map-panel">
+            <div class="map-panel-inner">
+
+              <button id="locateBtn" onclick="locateUser()">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="6.5" r="2" fill="currentColor"/><path d="M6.5 1V3M6.5 10V12M1 6.5H3M10 6.5H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Locate Me
+              </button>
+
+              <div id="coordsBadge" class="coords-badge" style="display:none">
+                <div class="coords-dot"></div>
+                <div>
+                  <div id="locationName" class="loc-name">Locating…</div>
+                  <div id="locationAddr" class="loc-addr"></div>
+                  <div class="loc-coords">
+                    <span id="latVal">—</span>, <span id="lngVal">—</span>
+                  </div>
                 </div>
+              </div>
+
+              <div class="map-divider"></div>
+
+              <div class="map-search-row">
+                <input id="searchInput" type="text" placeholder="Search places…"
+                  onkeydown="if(event.key==='Enter') searchPlaces()" />
+                <button id="searchBtn" onclick="searchPlaces()">Go</button>
+              </div>
+
+              <div id="map-status">
+                <div class="sdot"></div>
+                <span id="statusText">Ready</span>
+              </div>
+
+              <div id="map-results"></div>
+
             </div>
+          </div>
+
         </div>
-        <script src="/static/script.js" defer></script>
-    </body>
+      </section>
+
+    </main>
+
+    <script src="/static/script.js" defer></script>
+  </body>
 </html>
