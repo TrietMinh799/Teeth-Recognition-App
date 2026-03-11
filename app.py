@@ -77,18 +77,50 @@ class Detection:
                 conf = box.conf[0]
                 cls = int(box.cls[0])
                 label = f"{self.model.names[cls]} {conf:.2f}"
-                colour_codes = { 0: (0, 255, 0) , 1: (255, 0, 0) , 2 : (0, 0, 255), }
-                cv2.rectangle(img, (x1, y1), (x2, y2), colour_codes[cls % 3], rectangle_thickness)
+                img_h, img_w, _ = img.shape
+                colour_codes = {
+                    0: (0, 0, 0),
+                    1: (0, 0, 128),
+                    2: (0, 0, 255),
+                    3: (0, 128, 0),
+                    4: (0, 128, 128),
+                    5: (0, 128, 255),
+                    6: (0, 255, 0),
+                    7: (0, 255, 128),
+                    8: (0, 255, 255),
+                    9: (128, 0, 0),
+                    10: (128, 0, 128),
+                    11: (128, 0, 255),
+                    12: (128, 128, 0),
+                    13: (128, 128, 128),
+                    14: (128, 128, 255),
+                    15: (128, 255, 0),
+                    16: (128, 255, 128),
+                    17: (128, 255, 255),
+                    18: (255, 0, 0),
+                    19: (255, 0, 128),
+                    20: (255, 0, 255),
+                    21: (255, 128, 0),
+                    22: (255, 128, 128),
+                    23: (255, 128, 255),
+                    24: (255, 255, 0),
+                    25: (255, 255, 128),
+                    26: (255, 255, 255),
+                    27: (64, 64, 192),
+                    28: (64, 192, 64),
+                    29: (192, 64, 64)
+                }
+                cv2.rectangle(img, (x1, y1), (x2, y2), colour_codes[cls], int(rectangle_thickness * img_h * 0.007))
                 # text_size, _ =cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_thickness)
                 # text_w, text_h= text_size
                 cv2.putText(
                     img,
                     label,
-                    ((x1 - len(label)//2 * 4), y1 + 30),
+                    (int(x1 - len(label)/2 * img_w * 0.01), int(y1 - img_h * 0.01)),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.43,
-                    colour_codes[cls % 3],   
-                    text_thickness,
+                    (img_h) * 0.002,
+                    colour_codes[cls],   
+                    int(text_thickness * img_h * 0.007),
                 )
         return img, results[0]
 
@@ -137,7 +169,7 @@ def apply_detection():
 
         confidence = request.form.get("confidence", default=0.5, type=float)
         img = Image.open(file_path).convert("RGB")
-        img = np.array(img)
+        img = np.array(img, dtype = np.uint8)
         img, result = detection.detect_from_image(img, confidence)
         output = Image.fromarray(img)
 

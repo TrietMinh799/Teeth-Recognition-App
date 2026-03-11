@@ -7,7 +7,7 @@ Các công nghệ sử dụng trong dự án:
 - Backend
     - Flask
     - Sử dụng thư viện Ultralytics để xử lý hình ảnh
-    - Sử dụng model lấy từ [đây](https://huggingface.co/spaces/alibidaran/Dental_Analysis/tree/main)
+    - Sử dụng model lấy từ [đây](https://SShuggingface.co/spaces/alibidaran/Dental_Analysis/tree/main)
 
 # Install
 
