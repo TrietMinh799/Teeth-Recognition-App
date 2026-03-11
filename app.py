@@ -106,9 +106,10 @@ class Detection:
                     24: (255, 255, 0),
                     25: (255, 255, 128),
                     26: (255, 255, 255),
-                    27: (64, 64, 192),
-                    28: (64, 192, 64),
-                    29: (192, 64, 64)
+                    27: (64, 64, 64),
+                    28: (192, 192, 192),
+                    29: (64, 128, 192),
+                    30: (192, 64, 128)
                 }
                 cv2.rectangle(img, (x1, y1), (x2, y2), colour_codes[cls], int(rectangle_thickness * img_h * 0.007))
                 # text_size, _ =cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_thickness)
