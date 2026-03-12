@@ -512,9 +512,6 @@ async function runDetection() {
       fetch('/object-detection/', { method: 'POST', body: formData })
     ]);
 
-    const color = await fetch('./color.json').then(res => res.json());
-    console.log(color)
-
     const classes = await classesRes.json();
     const data = await detectionRes.json();
 
@@ -532,7 +529,7 @@ async function runDetection() {
       li.textContent = conditionName;
       // Make the condition clickable
       li.style.cursor = 'pointer';
-
+      li.id = `id${cls}`;
       li.title = `Click to learn more about "${conditionName}" on DuckDuckGo`;
       li.onclick = (e) => {
         e.stopPropagation();

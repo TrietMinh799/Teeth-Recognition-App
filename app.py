@@ -269,13 +269,6 @@ def data():
     return jsonify(data)
 
 
-@app.route("/color.json")
-def color():
-    with open("color.json") as f:
-        color = jsonpickle.decode(f.read())
-    return jsonify(color)
-
-
 @app.route("/history/")
 def get_history():
     """Fetch all history entries."""

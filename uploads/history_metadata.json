@@ -1,5 +1,285 @@
 [
   {
+    "id": "a667a7ef-d8c0-4454-b058-d418b6c465a8",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_fb57f37c474f48b88abe57a5c8597bba.png",
+    "filename": "processed_fb57f37c474f48b88abe57a5c8597bba.png",
+    "confidence": 0.0,
+    "detected_classes": [
+      0,
+      1,
+      2,
+      5,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      30
+    ],
+    "detected_class_names": [
+      "Caries",
+      "Crown",
+      "Filling",
+      "Mandibular Canal",
+      "Missing teeth",
+      "Periapical lesion",
+      "Root Canal Treatment",
+      "Root Piece",
+      "impacted tooth",
+      "maxillary sinus",
+      "Bone Loss",
+      "Primary teeth"
+    ],
+    "timestamp": "2026-03-12T20:49:10.161672"
+  },
+  {
+    "id": "b9d867e2-46e3-4d60-8734-a10ff4414768",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_e851c0600b8d4d00a40a565a99fb6d45.png",
+    "filename": "processed_e851c0600b8d4d00a40a565a99fb6d45.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T20:49:03.549506"
+  },
+  {
+    "id": "29c93061-32da-4215-8675-17e6256ea255",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_96658558e299473b84fdf04d33247f9e.png",
+    "filename": "processed_96658558e299473b84fdf04d33247f9e.png",
+    "confidence": 0.25,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T20:48:54.388512"
+  },
+  {
+    "id": "c98bcfce-4f7c-4d2e-874e-7d24d10d48e3",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_a8cf06e875684fe092796e1665527b8d.png",
+    "filename": "processed_a8cf06e875684fe092796e1665527b8d.png",
+    "confidence": 0.05,
+    "detected_classes": [
+      0,
+      2,
+      6,
+      9,
+      10,
+      13
+    ],
+    "detected_class_names": [
+      "Caries",
+      "Filling",
+      "Missing teeth",
+      "Root Canal Treatment",
+      "Root Piece",
+      "Bone Loss"
+    ],
+    "timestamp": "2026-03-12T20:48:50.434619"
+  },
+  {
+    "id": "4f7871d4-6592-472c-a569-64f97d8fb5b7",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_27ff1055d5c04a5187caff3da8bfdf0f.png",
+    "filename": "processed_27ff1055d5c04a5187caff3da8bfdf0f.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T20:46:06.852141"
+  },
+  {
+    "id": "0c224c2e-5862-4ccf-9590-852d2c6a57ee",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_5064708ba33e4729b2eead62bd31b7a3.png",
+    "filename": "processed_5064708ba33e4729b2eead62bd31b7a3.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T20:45:47.245174"
+  },
+  {
+    "id": "3b034437-febb-40e6-88e1-294a17ac3147",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_7c88997eda0e470980df021d1ca56511.png",
+    "filename": "processed_7c88997eda0e470980df021d1ca56511.png",
+    "confidence": 0.15,
+    "detected_classes": [
+      1,
+      2,
+      3,
+      9,
+      13
+    ],
+    "detected_class_names": [
+      "Crown",
+      "Filling",
+      "Implant",
+      "Root Canal Treatment",
+      "Bone Loss"
+    ],
+    "timestamp": "2026-03-12T20:44:42.220435"
+  },
+  {
+    "id": "b05bf42b-246f-4e10-a4b0-077560381d11",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_873b620cb80448ac866c0f5db5421e5a.png",
+    "filename": "processed_873b620cb80448ac866c0f5db5421e5a.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      1,
+      3
+    ],
+    "detected_class_names": [
+      "Crown",
+      "Implant"
+    ],
+    "timestamp": "2026-03-12T20:44:22.298961"
+  },
+  {
+    "id": "62e07907-72cc-43a8-9700-b40a18e9957d",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_267551d6c30b46c188ea0c8d039b6a35.png",
+    "filename": "processed_267551d6c30b46c188ea0c8d039b6a35.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T20:43:20.966511"
+  },
+  {
+    "id": "9c83cacc-4da3-4882-a93f-0b665472a0df",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_bf890f0399364abfae8641c93480af2f.png",
+    "filename": "processed_bf890f0399364abfae8641c93480af2f.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T19:24:12.845026"
+  },
+  {
+    "id": "1211d086-9866-4703-a824-ffda72996968",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_e1c7b41ac3ac4fbeaa694e641a73e3e7.png",
+    "filename": "processed_e1c7b41ac3ac4fbeaa694e641a73e3e7.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T19:23:07.898297"
+  },
+  {
+    "id": "e8f1c851-f189-49b3-b359-301bddad6f2b",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_4d1e974b708449aaa8a5cd7b1e0259e4.png",
+    "filename": "processed_4d1e974b708449aaa8a5cd7b1e0259e4.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      1,
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Crown",
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T19:21:33.562001"
+  },
+  {
+    "id": "c36eee9c-2c97-4094-a729-81d8cfb4779d",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_ffb3914ddc884c0da46cb02be603b393.png",
+    "filename": "processed_ffb3914ddc884c0da46cb02be603b393.png",
+    "confidence": 0.25,
+    "detected_classes": [
+      10,
+      1,
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Root Piece",
+      "Crown",
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T19:16:36.322212"
+  },
+  {
+    "id": "fedcdd6d-d226-4d74-b411-03d899d73245",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_c43cc267c83747769a04befa8c290217.png",
+    "filename": "processed_c43cc267c83747769a04befa8c290217.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T19:15:29.759073"
+  },
+  {
+    "id": "ffe415a9-5506-48da-9d86-72b28016acf8",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_cb24444c740b40ec97b3c18f0d86b54f.png",
+    "filename": "processed_cb24444c740b40ec97b3c18f0d86b54f.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T19:08:59.024367"
+  },
+  {
+    "id": "24e30693-d794-4121-a914-afcb06506915",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_dc06645817ef472e8911d85c71a797e9.png",
+    "filename": "processed_dc06645817ef472e8911d85c71a797e9.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T19:07:53.800764"
+  },
+  {
     "id": "d4fb96c9-6538-4fed-8d07-66b90c1f6b12",
     "image_url": "http://127.0.0.1:8000/uploads/processed_6c2b23ce7ac147fba881531645673804.png",
     "filename": "processed_6c2b23ce7ac147fba881531645673804.png",

@@ -701,6 +701,131 @@ input[type="range"]::-webkit-slider-thumb:hover {
   flex-shrink: 0;
 }
 
+#id0::before {
+  background: rgb(0, 0, 0) !important;
+}
+
+#id1::before {
+  background-color: rgb(0, 0, 128);
+}
+
+#id2::before {
+  background-color: rgb(0, 0, 255);
+}
+
+#id3::before {
+  background-color: rgb(0, 128, 0);
+}
+
+#id4::before {
+  background-color: rgb(0, 128, 128);
+}
+
+#id5::before {
+  background-color: rgb(0, 128, 255);
+}
+
+#id6::before {
+  background-color: rgb(0, 255, 0);
+}
+
+#id7::before {
+  background-color: rgb(0, 255, 128);
+}
+
+#id8::before {
+  background-color: rgb(0, 255, 255);
+}
+
+#id9::before {
+  background-color: rgb(128, 0, 0);
+}
+
+#id10::before {
+  background-color: rgb(128, 0, 128);
+}
+
+#id11::before {
+  background-color: rgb(128, 0, 255);
+}
+
+#id12::before {
+  background-color: rgb(128, 128, 0);
+}
+
+#id13::before {
+  background-color: rgb(128, 128, 128);
+}
+
+#id14::before {
+  background-color: rgb(128, 128, 255);
+}
+
+#id15::before {
+  background-color: rgb(128, 255, 0);
+}
+
+#id16::before {
+  background-color: rgb(128, 255, 128);
+}
+
+#id17::before {
+  background-color: rgb(128, 255, 255);
+}
+
+#id18::before {
+  background-color: rgb(255, 0, 0);
+}
+
+#id19::before {
+  background-color: rgb(255, 0, 128);
+}
+
+#id20::before {
+  background-color: rgb(255, 0, 255);
+}
+
+#id21::before {
+  background-color: rgb(255, 128, 0);
+}
+
+#id22::before {
+  background-color: rgb(255, 128, 128);
+}
+
+#id23::before {
+  background-color: rgb(255, 128, 255);
+}
+
+#id24::before {
+  background-color: rgb(255, 255, 0);
+}
+
+#id25::before {
+  background-color: rgb(255, 255, 128);
+}
+
+#id26::before {
+  background-color: rgb(255, 255, 255);
+}
+
+#id27::before {
+  background-color: rgb(64, 64, 64);
+}
+
+#id28::before {
+  background-color: rgb(192, 192, 192);
+}
+
+#id29::before {
+  background-color: rgb(64, 128, 192);
+}
+
+#id30::before {
+  background-color: rgb(192, 64, 128);
+}
+
+
 @keyframes conditionIn {
   from {
     opacity: 0;
