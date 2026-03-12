@@ -1,5 +1,7 @@
 import os
 import uuid
+import json
+from datetime import datetime
 
 import cv2
 import jsonpickle
@@ -19,6 +21,7 @@ from werkzeug.utils import redirect, secure_filename
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "uploads/"
+HISTORY_METADATA_FILE = os.path.join("uploads/", "history_metadata.json")
 ALLOWED_EXTENSIONS = {
     "png",
     "jpg",
@@ -59,6 +62,61 @@ colour_codes = {
     29: (64, 128, 192),
     30: (192, 64, 128),
 }
+
+
+# ═════════════════════════════════════════════════════
+# History Management Functions
+# ═════════════════════════════════════════════════════
+
+
+def load_history_metadata():
+    """Load history metadata from JSON file."""
+    if os.path.exists(HISTORY_METADATA_FILE):
+        try:
+            with open(HISTORY_METADATA_FILE, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading history: {e}")
+            return []
+    return []
+
+
+def save_history_metadata(metadata_list):
+    """Save history metadata to JSON file."""
+    try:
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+        with open(HISTORY_METADATA_FILE, "w") as f:
+            json.dump(metadata_list, f, indent=2)
+    except Exception as e:
+        print(f"Error saving history: {e}")
+
+
+def add_history_entry(image_filename, confidence, detected_classes):
+    """Add a new entry to history with metadata."""
+    with open("data.json") as f:
+        class_names = jsonpickle.decode(f.read())
+
+    unique_classes = list(set([int(cls) for cls in detected_classes]))
+    class_names_detected = [
+        class_names.get(str(cls), f"Class {cls}") for cls in unique_classes
+    ]
+
+    entry = {
+        "id": str(uuid.uuid4()),
+        "image_url": url_for("uploaded_file", filename=image_filename, _external=True),
+        "filename": image_filename,
+        "confidence": confidence,
+        "detected_classes": unique_classes,
+        "detected_class_names": class_names_detected,
+        "timestamp": datetime.now().isoformat(),
+    }
+
+    metadata_list = load_history_metadata()
+    metadata_list.insert(0, entry)  # Insert at beginning (most recent first)
+    # Keep only last 100 entries
+    if len(metadata_list) > 100:
+        metadata_list = metadata_list[:100]
+    save_history_metadata(metadata_list)
 
 
 # Load model
@@ -175,7 +233,7 @@ def apply_detection():
         flash("No file part")
         return redirect(request.url)
 
-    if file and allowed_file(file.filename):
+    if file and allowed_file(file.filename) and file.filename is not None:
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
@@ -191,6 +249,9 @@ def apply_detection():
         output.save(processed_path)
 
         os.remove(file_path)
+
+        # Add to history
+        add_history_entry(processed_name, confidence, result.boxes.cls.tolist())
 
         image_url = url_for("uploaded_file", filename=processed_name, _external=True)
         return jsonify({"image_url": image_url, "classes": result.boxes.cls.tolist()})
@@ -213,6 +274,48 @@ def color():
     with open("color.json") as f:
         color = jsonpickle.decode(f.read())
     return jsonify(color)
+
+
+@app.route("/history/")
+def get_history():
+    """Fetch all history entries."""
+    history = load_history_metadata()
+    return jsonify(history)
+
+
+@app.route("/delete-history/", methods=["POST"])
+def delete_history_entry():
+    """Delete a specific history entry by ID."""
+    data = request.get_json()
+    entry_id = data.get("id")
+
+    if not entry_id:
+        return jsonify({"error": "No ID provided"}), 400
+
+    metadata_list = load_history_metadata()
+    original_len = len(metadata_list)
+
+    # Remove entry with matching ID
+    metadata_list = [entry for entry in metadata_list if entry["id"] != entry_id]
+
+    if len(metadata_list) < original_len:
+        # Find and delete the associated image file
+        for entry in load_history_metadata():
+            if entry["id"] == entry_id:
+                try:
+                    image_path = os.path.join(
+                        app.config["UPLOAD_FOLDER"], entry["filename"]
+                    )
+                    if os.path.exists(image_path):
+                        os.remove(image_path)
+                except Exception as e:
+                    print(f"Error deleting image: {e}")
+                break
+
+        save_history_metadata(metadata_list)
+        return jsonify({"success": True})
+
+    return jsonify({"error": "Entry not found"}), 404
 
 
 if __name__ == "__main__":

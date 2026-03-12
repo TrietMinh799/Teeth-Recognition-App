@@ -411,6 +411,9 @@ function switchSection(name) {
     initMap();
     mapInitialized = true;
   }
+  if (name === 'history') {
+    loadHistory();
+  }
 }
 
 document.querySelectorAll('.nav-item').forEach(el => {
@@ -429,8 +432,8 @@ function updateConf(val) {
 const dropZone = document.getElementById('dropZone');
 
 dropZone.addEventListener('click', () => {
-  if (!document.getElementById('uploadPreview').style.display || 
-      document.getElementById('uploadPreview').style.display === 'none') {
+  if (!document.getElementById('uploadPreview').style.display ||
+    document.getElementById('uploadPreview').style.display === 'none') {
     document.getElementById('image').click();
   }
 });
@@ -509,6 +512,9 @@ async function runDetection() {
       fetch('/object-detection/', { method: 'POST', body: formData })
     ]);
 
+    const color = await fetch('./color.json').then(res => res.json());
+    console.log(color)
+
     const classes = await classesRes.json();
     const data = await detectionRes.json();
 
@@ -526,6 +532,7 @@ async function runDetection() {
       li.textContent = conditionName;
       // Make the condition clickable
       li.style.cursor = 'pointer';
+
       li.title = `Click to learn more about "${conditionName}" on DuckDuckGo`;
       li.onclick = (e) => {
         e.stopPropagation();
@@ -546,7 +553,7 @@ async function runDetection() {
     console.error('Detection failed:', err);
     document.getElementById('scanLoading').style.display = 'none';
     document.getElementById('emptyResults').style.display = 'flex';
-    document.getElementById('emptyResults').querySelector('p').textContent = 
+    document.getElementById('emptyResults').querySelector('p').textContent =
       'Detection failed. Please try again.';
   } finally {
     btn.disabled = false;
@@ -727,7 +734,7 @@ async function photonSearch(query) {
     if (!data.features?.length) return null;
     return data.features.map((f) => {
       const p = f.properties, [lon, lat] = f.geometry.coordinates;
-      return { name: p.name || p.street || p.city || query, sub: [p.street, p.city, p.country].filter(Boolean).slice(0,3).join(', '), lat, lon, dist: userCoords ? haversine(userCoords.lat, userCoords.lng, lat, lon) : null, badge: p.osm_value || '' };
+      return { name: p.name || p.street || p.city || query, sub: [p.street, p.city, p.country].filter(Boolean).slice(0, 3).join(', '), lat, lon, dist: userCoords ? haversine(userCoords.lat, userCoords.lng, lat, lon) : null, badge: p.osm_value || '' };
     });
   } catch { return null; }
 }
@@ -735,13 +742,13 @@ async function photonSearch(query) {
 async function nominatimSearch(query) {
   try {
     let extra = '';
-    if (userCoords) { const { lat, lng } = userCoords, d = 2; extra = `&viewbox=${lng-d},${lat-d},${lng+d},${lat+d}&bounded=0`; }
+    if (userCoords) { const { lat, lng } = userCoords, d = 2; extra = `&viewbox=${lng - d},${lat - d},${lng + d},${lat + d}&bounded=0`; }
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=10&addressdetails=1${extra}`;
     const data = await (await fetch(url, { headers: { 'Accept-Language': 'en' } })).json();
     if (!data.length) return null;
     return data.map((p) => {
       const lat = +p.lat, lon = +p.lon;
-      return { name: p.name || p.display_name.split(',')[0], sub: p.display_name.split(',').slice(1,4).join(', ').trim(), lat, lon, dist: userCoords ? haversine(userCoords.lat, userCoords.lng, lat, lon) : null };
+      return { name: p.name || p.display_name.split(',')[0], sub: p.display_name.split(',').slice(1, 4).join(', ').trim(), lat, lon, dist: userCoords ? haversine(userCoords.lat, userCoords.lng, lat, lon) : null };
     });
   } catch { return null; }
 }
@@ -801,4 +808,161 @@ function clearSearchMarkers() {
   searchMarkers = [];
   if (activePopup) { activePopup.remove(); activePopup = null; }
   document.getElementById('map-results').innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════════
+
+let allHistory = [];
+
+async function loadHistory() {
+  try {
+    const response = await fetch('/history/');
+    allHistory = await response.json();
+    displayHistory(allHistory);
+  } catch (err) {
+    console.error('Failed to load history:', err);
+    document.getElementById('emptyHistory').style.display = 'flex';
+    document.getElementById('historyContainer').style.display = 'none';
+  }
+}
+
+function displayHistory(history) {
+  const container = document.getElementById('historyContainer');
+  const emptyState = document.getElementById('emptyHistory');
+  const grid = document.getElementById('historyGrid');
+
+  if (!history || history.length === 0) {
+    emptyState.style.display = 'flex';
+    container.style.display = 'none';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  container.style.display = 'flex';
+  grid.innerHTML = '';
+
+  history.forEach((entry, index) => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <div class="history-thumbnail">
+        <img src="${entry.image_url}" alt="Scan: ${entry.timestamp}" />
+      </div>
+      <div class="history-info">
+        <div class="history-time">
+          🕐 ${formatDate(entry.timestamp)}
+        </div>
+        <div class="history-detections">
+          ${entry.detected_class_names.slice(0, 3).map(name =>
+      `<div class="detection-badge">${name}</div>`
+    ).join('')}
+          ${entry.detected_class_names.length > 3 ? `<div class="detection-badge">+${entry.detected_class_names.length - 3}</div>` : ''}
+        </div>
+      </div>
+      <div class="history-actions">
+        <button class="history-view-btn" onclick="viewHistoryEntry('${entry.id}')">View</button>
+        <button class="history-delete-btn" onclick="deleteHistoryEntry('${entry.id}')">Delete</button>
+      </div>
+    `;
+    grid.appendChild(item);
+  });
+}
+
+function formatDate(isoString) {
+  const date = new Date(isoString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const dateOnly = date.toDateString();
+  const todayStr = today.toDateString();
+  const yesterdayStr = yesterday.toDateString();
+
+  let dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (dateOnly === todayStr) dateLabel = 'Today';
+  else if (dateOnly === yesterdayStr) dateLabel = 'Yesterday';
+
+  const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  return `${dateLabel} at ${time}`;
+}
+
+function filterHistory() {
+  const fromDate = document.getElementById('dateFilterFrom').value;
+  const toDate = document.getElementById('dateFilterTo').value;
+
+  const filtered = allHistory.filter(entry => {
+    const entryDate = new Date(entry.timestamp).toDateString();
+    let isIncluded = true;
+
+    if (fromDate) {
+      const from = new Date(fromDate).toDateString();
+      isIncluded = isIncluded && entryDate >= from;
+    }
+
+    if (toDate) {
+      const to = new Date(toDate).toDateString();
+      isIncluded = isIncluded && entryDate <= to;
+    }
+
+    return isIncluded;
+  });
+
+  displayHistory(filtered);
+}
+
+function resetDateFilters() {
+  document.getElementById('dateFilterFrom').value = '';
+  document.getElementById('dateFilterTo').value = '';
+  displayHistory(allHistory);
+}
+
+async function deleteHistoryEntry(entryId) {
+  if (!confirm('Are you sure you want to delete this scan from history?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/delete-history/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: entryId })
+    });
+
+    if (response.ok) {
+      allHistory = allHistory.filter(entry => entry.id !== entryId);
+      displayHistory(allHistory);
+    } else {
+      alert('Failed to delete history entry');
+    }
+  } catch (err) {
+    console.error('Failed to delete history entry:', err);
+    alert('Error deleting entry');
+  }
+}
+
+function viewHistoryEntry(entryId) {
+  const entry = allHistory.find(e => e.id === entryId);
+  if (entry) {
+    // Show image in a larger view or redirect to results
+    window.open(entry.image_url, '_blank');
+  }
+}
+
+function clearAllHistory() {
+  if (!confirm('Are you sure you want to delete ALL scans from history? This cannot be undone.')) {
+    return;
+  }
+
+  allHistory.forEach(entry => {
+    fetch('/delete-history/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: entry.id })
+    });
+  });
+
+  allHistory = [];
+  displayHistory([]);
 }

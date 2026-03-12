@@ -1,0 +1,86 @@
+[
+  {
+    "id": "d4fb96c9-6538-4fed-8d07-66b90c1f6b12",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_6c2b23ce7ac147fba881531645673804.png",
+    "filename": "processed_6c2b23ce7ac147fba881531645673804.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T11:54:42.868321"
+  },
+  {
+    "id": "ddb4eba0-aed9-4c08-a02e-5762aa831172",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_d7326a72d52542d0abd85a0056d9d14c.png",
+    "filename": "processed_d7326a72d52542d0abd85a0056d9d14c.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T11:52:00.911038"
+  },
+  {
+    "id": "77ab0313-ea2d-4dcf-a101-14cc2ec8168c",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_0cc4980dc8924e019c3467e3485f7757.png",
+    "filename": "processed_0cc4980dc8924e019c3467e3485f7757.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T11:49:27.686797"
+  },
+  {
+    "id": "9fece06e-7e6b-497a-abcf-0e5ce62f1f7a",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_b771557c1c5049d2bf8e8dd6be0788de.png",
+    "filename": "processed_b771557c1c5049d2bf8e8dd6be0788de.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      9,
+      2
+    ],
+    "detected_class_names": [
+      "Root Canal Treatment",
+      "Filling"
+    ],
+    "timestamp": "2026-03-12T11:48:53.377638"
+  },
+  {
+    "id": "a0d9f0fe-6493-42d3-b266-315175b63c87",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_2858a0d40a91432a8d32fc6d7cdbd061.png",
+    "filename": "processed_2858a0d40a91432a8d32fc6d7cdbd061.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-12T11:44:17.715448"
+  },
+  {
+    "id": "868c7729-d35b-4fe9-867c-7b58c02bfb54",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_d431da9cda814d40a133ac19f6f54b8b.png",
+    "filename": "processed_d431da9cda814d40a133ac19f6f54b8b.png",
+    "confidence": 0.5,
+    "detected_classes": [],
+    "detected_class_names": [],
+    "timestamp": "2026-03-12T11:43:20.282925"
+  }
+]
