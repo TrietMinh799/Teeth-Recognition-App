@@ -1,5 +1,33 @@
 [
   {
+    "id": "7d4161e7-97e0-4d8c-b384-8f25204847b1",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_9e08ffb8a3224b23942965a2fa938041.png",
+    "filename": "processed_9e08ffb8a3224b23942965a2fa938041.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      2,
+      11
+    ],
+    "detected_class_names": [
+      "Filling",
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-13T13:34:19.262062"
+  },
+  {
+    "id": "2dd60a4d-d8f2-47ca-bb9a-a6aa0cb17296",
+    "image_url": "http://127.0.0.1:8000/uploads/processed_69a409f5b0684839bda8c7c6b9627501.png",
+    "filename": "processed_69a409f5b0684839bda8c7c6b9627501.png",
+    "confidence": 0.5,
+    "detected_classes": [
+      11
+    ],
+    "detected_class_names": [
+      "impacted tooth"
+    ],
+    "timestamp": "2026-03-13T13:34:01.546984"
+  },
+  {
     "id": "b9d867e2-46e3-4d60-8734-a10ff4414768",
     "image_url": "http://127.0.0.1:8000/uploads/processed_e851c0600b8d4d00a40a565a99fb6d45.png",
     "filename": "processed_e851c0600b8d4d00a40a565a99fb6d45.png",
