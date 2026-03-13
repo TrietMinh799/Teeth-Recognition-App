@@ -6,3 +6,4 @@ share/
 uploads/*.png
 
 pyvenv.cfg
+index.py
