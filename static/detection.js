@@ -6,6 +6,7 @@ async function runDetection() {
         return;
     }
 
+    const showsLabels = document.getElementById('showLabels').checked;
     const confidence = document.getElementById('confidence').value;
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
@@ -20,6 +21,7 @@ async function runDetection() {
     const formData = new FormData();
     formData.append('image', imageInput.files[0]);
     formData.append('confidence', confidence);
+    formData.append('showLabels', showsLabels ? 'on' : 'off');
 
     try {
         const [classesRes, detectionRes] = await Promise.all([

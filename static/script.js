@@ -2,6 +2,26 @@
    DentalScan · script.js
 ═══════════════════════════════════════════════════ */
 
+// ── Theme ─────────────────────────────────────────
+(function initTheme() {
+  const saved = localStorage.getItem('ds-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (saved === 'dark' || (!saved && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('ds-theme', 'light');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('ds-theme', 'dark');
+  }
+}
+
 // ── Section navigation ────────────────────────────
 function switchSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -84,6 +104,3 @@ function clearPreview() {
   document.getElementById('uploadPreview').style.display = 'none';
   document.getElementById('image').value = '';
 }
-
-
-

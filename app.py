@@ -152,7 +152,13 @@ class Detection:
         return results
 
     def predict_and_detect(
-        self, img, classes=[], conf=0.5, rectangle_thickness=1, text_thickness=1
+        self,
+        img,
+        classes=[],
+        conf=0.5,
+        rectangle_thickness=1,
+        text_thickness=1,
+        show_labels=False,
     ):
         """
         Performs detection and draws bounding boxes/labels on the image.
@@ -182,20 +188,26 @@ class Detection:
                     colour_codes[cls],
                     int(rectangle_thickness * img_h * 0.007),
                 )
-                # text_size, _ =cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_thickness)
-                # text_w, text_h= text_size
-                """ cv2.putText(
-                    img,
-                    label,
-                    (int(x1 - len(label) / 2 * img_w * 0.01), int(y1 - img_h * 0.01)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    (img_h) * 0.002,
-                    colour_codes[cls],
-                    int(text_thickness * img_h * 0.007),
-                ) """
+                if show_labels:
+                    text_size, _ = cv2.getTextSize(
+                        label, cv2.FONT_HERSHEY_SIMPLEX, 0.4, text_thickness
+                    )
+                    text_w, text_h = text_size
+                    cv2.putText(
+                        img,
+                        label,
+                        (
+                            int(x1 - len(label) / 2 * img_w * 0.01),
+                            int(y1 - img_h * 0.01),
+                        ),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        (img_h) * 0.002,
+                        colour_codes[cls],
+                        int(text_thickness * img_h * 0.007),
+                    )
         return img, results[0]
 
-    def detect_from_image(self, image, confidence):
+    def detect_from_image(self, image, confidence, show_labels=False):
         """
         Convenience wrapper for detecting objects in an image with a specific confidence.
 
@@ -206,7 +218,9 @@ class Detection:
         Returns:
             tuple: (annotated_image, result_object)
         """
-        result_img, result = self.predict_and_detect(image, classes=[], conf=confidence)
+        result_img, result = self.predict_and_detect(
+            image, classes=[], conf=confidence, show_labels=show_labels
+        )
         return result_img, result
 
 
@@ -238,10 +252,11 @@ def apply_detection():
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
 
+        show_labels = request.form.get("showLabels", "off") == "on"
         confidence = request.form.get("confidence", default=0.5, type=float)
         img = Image.open(file_path).convert("RGB")
         img = np.array(img, dtype=np.uint8)
-        img, result = detection.detect_from_image(img, confidence)
+        img, result = detection.detect_from_image(img, confidence, show_labels)
         output = Image.fromarray(img)
 
         processed_name = f"processed_{uuid.uuid4().hex}.png"

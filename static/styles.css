@@ -1426,6 +1426,142 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background: var(--red-light);
 }
 
+/* ═══════════════════════════════════════ DARK MODE */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #161c26;
+  --surface-2: #1c2333;
+  --border: #2a3347;
+  --border-2: #323d54;
+  --text: #e2ddd6;
+  --text-2: #9b97a3;
+  --text-3: #5e5c70;
+  --accent: #5b8ec9;
+  --accent-light: #182030;
+  --accent-mid: #7aaee0;
+  --green: #4ade80;
+  --green-light: #0b2218;
+  --red: #f87171;
+  --red-light: #250e0e;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.5), 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* Ambient orbs */
+[data-theme="dark"] .orb-1 {
+  background: radial-gradient(circle, #1a3a6a, transparent 70%);
+  opacity: 0.25;
+}
+
+[data-theme="dark"] .orb-2 {
+  background: radial-gradient(circle, #0e2a1e, transparent 70%);
+  opacity: 0.25;
+}
+
+/* Map panel glass */
+[data-theme="dark"] .map-panel-inner {
+  background: rgba(20, 28, 42, 0.97);
+  border-color: rgba(50, 65, 90, 0.7);
+}
+
+/* MapLibre popup */
+[data-theme="dark"] .maplibregl-popup-content {
+  background: #1c2333 !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-group {
+  background: rgba(22, 28, 38, 0.97) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-group button {
+  color: var(--text-3) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-group button:hover {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-attrib {
+  background: rgba(22, 28, 38, 0.85) !important;
+  color: var(--text-3) !important;
+}
+
+/* Buttons with hardcoded white bg */
+[data-theme="dark"] .btn-ghost-sm {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .history-view-btn,
+[data-theme="dark"] .history-delete-btn {
+  background: var(--surface-2);
+}
+
+[data-theme="dark"] .history-view-btn:hover {
+  background: var(--accent-light);
+}
+
+[data-theme="dark"] .history-delete-btn:hover {
+  background: var(--red-light);
+}
+
+/* Class-0 dot is black — make it visible in dark mode */
+[data-theme="dark"] #id0::before {
+  background: #aaa !important;
+}
+
+/* Date input colour-scheme */
+[data-theme="dark"] input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1.5px solid var(--border-2);
+  border-radius: 8px;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-mid);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-moon {
+  display: none;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* ═══════════════════════════════════════ RESPONSIVE */
 @media (max-width: 768px) {
   .sidebar {
